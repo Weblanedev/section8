@@ -74,15 +74,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       setCart((prevCart) => {
-        // Check if exact same item (same id, color, and size) exists
-        const existingItem = prevCart.find(
-          (item) =>
-            item.id === product.id &&
-            (item.selectedColor || item.color) ===
-              (cartItem.selectedColor || product.color) &&
-            (item.selectedSize || item.spec) ===
-              (cartItem.selectedSize || product.spec)
-        );
+        // Check if product with same ID already exists (regardless of color/size)
+        const existingItem = prevCart.find((item) => item.id === product.id);
 
         if (existingItem) {
           const id = toast.success(`${product.name} quantity updated!`, {
@@ -91,12 +84,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           });
           toastIdRef.current = id;
           return prevCart.map((item) =>
-            item.id === existingItem.id &&
-            (item.selectedColor || item.color) ===
-              (cartItem.selectedColor || product.color) &&
-            (item.selectedSize || item.spec) ===
-              (cartItem.selectedSize || product.spec)
-              ? { ...item, quantity: item.quantity + 1 }
+            item.id === product.id
+              ? {
+                  ...item,
+                  quantity: item.quantity + 1,
+                  // Update selected color/size if provided
+                  selectedColor: cartItem.selectedColor || product.color,
+                  selectedSize: cartItem.selectedSize || product.spec,
+                }
               : item
           );
         }
